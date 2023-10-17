@@ -113,6 +113,13 @@ func (b *BackupBuilder) FromSchedule(schedule *velerov1api.Schedule) *BackupBuil
 		b.ObjectMeta(WithAnnotationsMap(schedule.Annotations))
 	}
 
+	// Do not propagate ArgoCD's annotation
+	annotations := b.object.GetAnnotations()
+	argoAnnotation := "argocd.argoproj.io/instance"
+	if _, exists := annotations[argoAnnotation]; exists {
+		delete(annotations, argoAnnotation)
+	}
+
 	if boolptr.IsSetToTrue(schedule.Spec.UseOwnerReferencesInBackup) {
 		b.object.SetOwnerReferences([]metav1.OwnerReference{
 			{
