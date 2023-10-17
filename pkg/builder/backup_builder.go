@@ -106,6 +106,12 @@ func (b *BackupBuilder) FromSchedule(schedule *velerov1api.Schedule) *BackupBuil
 	}
 	labels[velerov1api.ScheduleNameLabel] = schedule.Name
 
+	// Do not propagate ArgoCD's label
+	argoLabel := "argocd.argoproj.io/instance"
+	if _, exists := labels[argoLabel]; exists {
+		delete(labels, argoLabel)
+	}
+
 	b.object.Spec = schedule.Spec.Template
 	b.ObjectMeta(WithLabelsMap(labels))
 
